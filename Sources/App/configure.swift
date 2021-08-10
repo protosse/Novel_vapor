@@ -5,6 +5,8 @@ import Vapor
 
 // configures your application
 public func configure(_ app: Application) throws {
+    app.logger.logLevel = .debug
+
     // uncomment to serve files from /Public folder
     // app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
 
@@ -17,8 +19,8 @@ public func configure(_ app: Application) throws {
     ), as: .psql)
 
     app.migrations.add(CreateBase())
-    app.logger.logLevel = .debug
-    
+    app.migrations.add(MakeBookCategoryUnique())
+
     try app.autoMigrate().wait()
 
     app.views.use(.leaf)

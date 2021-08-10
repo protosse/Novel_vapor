@@ -11,6 +11,8 @@ enum BookCategoryStatus: Int, Codable {
 }
 
 final class BookCategory: Model, Content {
+    static let schema = BookCategory.v20210810.schemaName
+
     @ID(custom: BookCategory.v20210810.id)
     var id: Int?
 

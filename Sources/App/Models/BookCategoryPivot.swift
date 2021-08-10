@@ -6,13 +6,15 @@ import Fluent
 import Vapor
 
 final class BookCategoryPivot: Model, Content {
+    static let schema = BookCategoryPivot.v20210810.schemaName
+
     @ID(custom: BookCategoryPivot.v20210810.id)
     var id: Int?
 
-    @Parent(key:  BookCategoryPivot.v20210810.bookId)
+    @Parent(key: BookCategoryPivot.v20210810.bookId)
     var book: Book
 
-    @Parent(key:  BookCategoryPivot.v20210810.bookCategoryId)
+    @Parent(key: BookCategoryPivot.v20210810.bookCategoryId)
     var bookCategory: BookCategory
 
     init() {}

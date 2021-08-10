@@ -6,6 +6,8 @@ import Fluent
 import Vapor
 
 final class BookChapter: Model, Content {
+    static let schema = BookChapter.v20210810.schemaName
+
     @ID(custom: BookChapter.v20210810.id)
     var id: Int?
 

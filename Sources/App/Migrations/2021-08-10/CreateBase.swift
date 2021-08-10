@@ -6,7 +6,7 @@ import Fluent
 
 struct CreateBase: Migration {
     func prepare(on database: Database) -> EventLoopFuture<Void> {
-        let book = database.schema(Book.v20210810.schemaName)
+        let book = database.schema(Book.schema)
             .field(Book.v20210810.id, .int, .identifier(auto: true))
             .field(Book.v20210810.title, .string, .required)
             .field(Book.v20210810.author, .string, .required)
@@ -16,7 +16,7 @@ struct CreateBase: Migration {
             .field(Book.v20210810.updatedAt, .date)
             .create()
 
-        let category = database.schema(BookCategory.v20210810.schemaName)
+        let category = database.schema(BookCategory.schema)
             .field(BookCategory.v20210810.id, .int, .identifier(auto: true))
             .field(BookCategory.v20210810.catName, .string, .required)
             .field(BookCategory.v20210810.status, .int, .required)
@@ -24,19 +24,19 @@ struct CreateBase: Migration {
             .field(BookCategory.v20210810.updatedAt, .date)
             .create()
 
-        let pivot = database.schema(BookCategoryPivot.v20210810.schemaName)
+        let pivot = database.schema(BookCategoryPivot.schema)
             .field(BookCategoryPivot.v20210810.id, .int, .identifier(auto: true))
             .field(BookCategoryPivot.v20210810.bookId, .int, .required, .references(Book.schema, "id", onDelete: .cascade))
             .field(BookCategoryPivot.v20210810.bookCategoryId, .int, .required, .references(BookCategory.schema, "id", onDelete: .cascade))
             .create()
 
-        let chapter = database.schema(BookChapter.v20210810.schemaName)
+        let chapter = database.schema(BookChapter.schema)
             .field(BookChapter.v20210810.id, .int, .identifier(auto: true))
             .field(BookChapter.v20210810.title, .string, .required)
             .field(BookChapter.v20210810.content, .string, .required)
             .field(BookChapter.v20210810.createdAt, .date)
             .field(BookChapter.v20210810.updatedAt, .date)
-            .field(BookChapter.v20210810.bookId, .int, .required, .references(Book.v20210810.schemaName, Book.v20210810.id))
+            .field(BookChapter.v20210810.bookId, .int, .required, .references(Book.schema, Book.v20210810.id))
             .create()
 
         return EventLoopFuture.andAllSucceed([book, category, pivot, chapter], on: database.eventLoop)
