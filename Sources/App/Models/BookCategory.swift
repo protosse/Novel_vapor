@@ -11,21 +11,19 @@ enum BookCategoryStatus: Int, Codable {
 }
 
 final class BookCategory: Model, Content {
-    static let schema = "book-categories"
-
-    @ID(custom: "id")
+    @ID(custom: BookCategory.v20210810.id)
     var id: Int?
 
-    @Field(key: "cat_name")
+    @Field(key: BookCategory.v20210810.catName)
     var catName: String
 
-    @Timestamp(key: "created_at", on: .create)
+    @Timestamp(key: BookCategory.v20210810.createdAt, on: .create)
     var createdAt: Date?
 
-    @Timestamp(key: "updated_at", on: .update)
+    @Timestamp(key: BookCategory.v20210810.updatedAt, on: .update)
     var updatedAt: Date?
 
-    @Field(key: "status")
+    @Field(key: BookCategory.v20210810.status)
     var status: BookCategoryStatus
 
     @Siblings(through: BookCategoryPivot.self, from: \.$bookCategory, to: \.$book)

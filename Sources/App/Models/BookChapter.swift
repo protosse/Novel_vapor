@@ -6,24 +6,22 @@ import Fluent
 import Vapor
 
 final class BookChapter: Model, Content {
-    static let schema = "book_chapters"
-
-    @ID(custom: "id")
+    @ID(custom: BookChapter.v20210810.id)
     var id: Int?
 
-    @Field(key: "title")
+    @Field(key: BookChapter.v20210810.title)
     var title: String
 
-    @Field(key: "content")
+    @Field(key: BookChapter.v20210810.content)
     var content: String
 
-    @Timestamp(key: "created_at", on: .create)
+    @Timestamp(key: BookChapter.v20210810.createdAt, on: .create)
     var createdAt: Date?
 
-    @Timestamp(key: "updated_at", on: .update)
+    @Timestamp(key: BookChapter.v20210810.updatedAt, on: .update)
     var updatedAt: Date?
 
-    @Parent(key: "bookId")
+    @Parent(key: BookChapter.v20210810.bookId)
     var book: Book
 
     init() {}

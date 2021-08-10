@@ -6,27 +6,25 @@ import Fluent
 import Vapor
 
 final class Book: Model, Content {
-    static let schema = "books"
-
-    @ID(custom: "id")
+    @ID(custom: Book.v20210810.id)
     var id: Int?
 
-    @Field(key: "title")
+    @Field(key: Book.v20210810.title)
     var title: String
 
-    @Field(key: "author")
+    @Field(key: Book.v20210810.author)
     var author: String
 
-    @OptionalField(key: "img")
+    @OptionalField(key: Book.v20210810.img)
     var img: String?
 
-    @OptionalField(key: "intro")
+    @OptionalField(key: Book.v20210810.intro)
     var intro: String?
 
-    @Timestamp(key: "created_at", on: .create)
+    @Timestamp(key: Book.v20210810.createdAt, on: .create)
     var createdAt: Date?
 
-    @Timestamp(key: "updated_at", on: .update)
+    @Timestamp(key: Book.v20210810.updatedAt, on: .update)
     var updatedAt: Date?
 
     @Siblings(through: BookCategoryPivot.self, from: \.$book, to: \.$bookCategory)
