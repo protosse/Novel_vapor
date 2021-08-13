@@ -2,6 +2,7 @@ import Fluent
 import FluentPostgresDriver
 import Leaf
 import Vapor
+import Redis
 
 // configures your application
 public func configure(_ app: Application) throws {
@@ -9,6 +10,7 @@ public func configure(_ app: Application) throws {
 
     // uncomment to serve files from /Public folder
     // app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
+    app.middleware.use(LogMiddleware())
 
     app.databases.use(.postgres(
         hostname: Environment.get("DATABASE_HOST") ?? "localhost",
@@ -20,8 +22,12 @@ public func configure(_ app: Application) throws {
 
     app.migrations.add(CreateBase())
     app.migrations.add(MakeBookCategoryUnique())
+    app.migrations.add(CacheEntry.migration)
 
     try app.autoMigrate().wait()
+    
+    app.redis.configuration = try RedisConfiguration(hostname: "localhost")
+    app.caches.use(.redis)
 
     app.views.use(.leaf)
 

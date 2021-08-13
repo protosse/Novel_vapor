@@ -6,7 +6,7 @@ func routes(_ app: Application) throws {
         req.view.render("index", ["title": "Hello Vapor!"])
     }
 
-    app.get("hello") { _ -> String in
-        "Hello, world!"
+    app.get("hello") { req -> EventLoopFuture<String> in
+        req.redis.ping()
     }
 }
