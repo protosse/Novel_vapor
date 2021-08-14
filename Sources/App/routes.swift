@@ -9,4 +9,6 @@ func routes(_ app: Application) throws {
     app.get("hello") { req -> EventLoopFuture<String> in
         req.redis.ping()
     }
+    
+    try app.register(collection: UsersController())
 }
