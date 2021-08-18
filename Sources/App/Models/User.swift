@@ -8,7 +8,7 @@ import Vapor
 final class User: Model {
     struct Public: Content {
         let username: String
-        let id: Int
+        let id: Int?
         let createdAt: Date?
     }
 
@@ -46,12 +46,26 @@ extension User: ModelAuthenticatable {
     }
 }
 
+// MARK: - Method
+
 extension User {
     static func create(from param: UserSignUpParam) throws -> User {
         User(username: param.username, password: try Bcrypt.hash(param.password))
     }
 
-    func asPublic() throws -> Public {
-        Public(username: username, id: try requireID(), createdAt: createdAt)
+    func asPublic() -> Public {
+        Public(username: username, id: id, createdAt: createdAt)
+    }
+}
+
+extension EventLoopFuture where Value: User {
+    func asPublic() -> EventLoopFuture<User.Public> {
+        map { $0.asPublic() }
+    }
+}
+
+extension User {
+    static func getUser(username: String, _ db: Database) -> EventLoopFuture<User?> {
+        User.query(on: db).filter(\.$username == username).first()
     }
 }

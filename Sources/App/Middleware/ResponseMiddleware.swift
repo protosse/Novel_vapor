@@ -136,3 +136,9 @@ extension ResponseError: AbortError {
         }
     }
 }
+
+extension EventLoopFuture {
+    func responseEmpty() -> EventLoopFuture<ResponseEmpty> {
+        return self.map{ _ in ResponseEmpty() }
+    }
+}

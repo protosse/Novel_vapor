@@ -23,37 +23,26 @@ struct UsersController: RouteCollection {
         let param = try req.content.decode(UserSignUpParam.self)
         let user = try User.create(from: param)
 
-        return checkIfUserExists(param.username, req).flatMap { exist in
-            guard !exist else {
-                return req.eventLoop.future(error: ResponseError.usernameTaken)
-            }
-            return user.save(on: req.db).map { ResponseEmpty() }
-        }
+        return User.getUser(username: param.username, req.db)
+            .guard({ $0 == nil }, else: ResponseError.usernameTaken)
+            .transform(to: user.save(on: req.db).responseEmpty())
     }
 
     func login(_ req: Request) throws -> EventLoopFuture<ResponseData<UserLoginResult>> {
         try UserSignUpParam.validate(content: req)
         let param = try req.content.decode(UserLoginParam.self)
-        return User.query(on: req.db)
-            .filter(\.$username == param.username)
-            .first()
-            .flatMapThrowing { user -> (User.Public, Token) in
-                guard let user = user else {
-                    throw ResponseError.userNotExist
-                }
-                guard try user.verify(password: param.password) else {
-                    throw ResponseError.passwordError
-                }
-
-                let pub = try user.asPublic()
-                let token = try Token.generate(for: user)
+        return User.getUser(username: param.username, req.db)
+            .unwrap(or: ResponseError.userNotExist)
+            .guard({ (try? $0.verify(password: param.password)) ?? false }, else: ResponseError.userNotExist)
+            .flatMapThrowing({ user -> (User.Public, Token) in
                 req.auth.login(user)
-                return (pub, token)
-            }.flatMap { v in
-                v.1.save(on: req.db).map {
-                    ResponseData(data: UserLoginResult(token: v.1.value, user: v.0))
-                }
-            }
+                let token = try Token.generate(for: user)
+                return (user.asPublic(), token)
+            })
+            .flatMap({ pub, token in
+                token.save(on: req.db)
+                    .transform(to: ResponseData(data: UserLoginResult(token: token.value, user: pub)))
+            })
     }
 
     func info(_ req: Request) throws -> ResponseData<User.Public> {
@@ -63,6 +52,10 @@ struct UsersController: RouteCollection {
 }
 
 extension UsersController {
+    func getUser(username: String, _ req: Request) -> EventLoopFuture<User?> {
+        User.query(on: req.db).filter(\.$username == username).first()
+    }
+
     func checkIfUserExists(_ username: String, _ req: Request) -> EventLoopFuture<Bool> {
         User.query(on: req.db).filter(\.$username == username).first().map { $0 != nil }
     }
